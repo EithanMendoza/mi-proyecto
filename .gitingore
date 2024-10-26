@@ -1,0 +1,7 @@
+# Ignorar node_modules en ambos directorios
+client/node_modules/
+server/node_modules/
+
+# Otros archivos a ignorar
+.env
+.DS_Store
