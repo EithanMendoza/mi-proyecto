@@ -1,22 +1,25 @@
+// Cargar variables de entorno desde el archivo .env 
+require('dotenv').config();
+
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;  // Modificación aquí para permitir configurar el puerto desde .env o usar 5000 por defecto
 
-// Configurar CORS para permitir conexiones desde el frontend
-app.use(cors({ origin: 'http://localhost:3000' }));
+// Configurar CORS para permitir conexiones desde el frontend en Vercel
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000' }));
 
 // Configuración de Express para procesar JSON
 app.use(express.json());
 
-// Configuración de la base de datos
+// Configuración de la base de datos usando variables de entorno
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'example'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
 db.connect(err => {
