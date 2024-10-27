@@ -6,8 +6,14 @@ function App() {
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/registros`)
-      .then(response => response.json())
-      .then(data => setRegistros(data));
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Error en la petición: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => setRegistros(data))
+      .catch(error => console.error('Error al obtener registros:', error));
   }, []);
   
   const handleSubmit = (e) => {
@@ -17,13 +23,20 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nombre })
     })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Error en la petición: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         alert(data.mensaje);
         setNombre('');
         setRegistros([...registros, { nombre, hora: new Date().toISOString(), mensaje: data.mensaje }]);
-      });
+      })
+      .catch(error => console.error('Error al guardar registro:', error));
   };
+  
 
   return (
     <div style={styles.container}>
