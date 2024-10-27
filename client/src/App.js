@@ -5,7 +5,13 @@ function App() {
   const [registros, setRegistros] = useState([]);
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/registros`)
+    const apiUrl = process.env.REACT_APP_API_URL;
+    if (!apiUrl) {
+      console.error("Error: REACT_APP_API_URL no está definida");
+      return;
+    }
+
+    fetch(`${apiUrl}/api/registros`)
       .then(response => {
         if (!response.ok) {
           throw new Error(`Error en la petición: ${response.status}`);
@@ -15,10 +21,16 @@ function App() {
       .then(data => setRegistros(data))
       .catch(error => console.error('Error al obtener registros:', error));
   }, []);
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`${process.env.REACT_APP_API_URL}/api/guardar`, {
+    const apiUrl = process.env.REACT_APP_API_URL;
+    if (!apiUrl) {
+      console.error("Error: REACT_APP_API_URL no está definida");
+      return;
+    }
+
+    fetch(`${apiUrl}/api/guardar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nombre })
@@ -36,7 +48,6 @@ function App() {
       })
       .catch(error => console.error('Error al guardar registro:', error));
   };
-  
 
   return (
     <div style={styles.container}>
