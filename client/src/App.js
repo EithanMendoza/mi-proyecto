@@ -24,7 +24,6 @@ function App() {
         setRegistros([...registros, { nombre, hora: new Date().toISOString(), mensaje: data.mensaje }]);
       });
   };
-  
 
   return (
     <div style={styles.container}>

@@ -6,7 +6,8 @@ const mysql = require('mysql2');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 5000;  // Modificación aquí para permitir configurar el puerto desde .env o usar 5000 por defecto
+const port = process.env.PORT || 5000;
+const environment = process.env.NODE_ENV || 'desarrollo';  // Usar variable de entorno para el entorno
 
 // Configurar CORS para permitir conexiones desde el frontend en Vercel
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000' }));
@@ -14,20 +15,36 @@ app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000' }));
 // Configuración de Express para procesar JSON
 app.use(express.json());
 
-// Configuración de la base de datos usando variables de entorno
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-});
+// Función para crear una conexión a la base de datos
+function connectToDatabase() {
+  return mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: 3306,
+  });
+}
 
+let db = connectToDatabase();
+
+// Manejar errores de conexión y reconectar automáticamente
 db.connect(err => {
   if (err) {
     console.error('Error conectando a la base de datos:', err);
-    return;
+    setTimeout(connectToDatabase, 5000);  // Reintento de conexión tras 5 segundos
+  } else {
+    console.log('Conexión exitosa a la base de datos');
   }
-  console.log('Conexión exitosa a la base de datos');
+});
+
+db.on('error', err => {
+  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    console.error('Conexión a la base de datos perdida. Reconectando...');
+    db = connectToDatabase();
+  } else {
+    console.error('Error en la base de datos:', err);
+  }
 });
 
 // Ruta para guardar un registro
@@ -60,5 +77,5 @@ app.get('/api/registros', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+  console.log(`Servidor corriendo en ${environment} en http://localhost:${port}`);
 });
