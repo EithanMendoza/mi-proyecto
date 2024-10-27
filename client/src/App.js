@@ -5,14 +5,14 @@ function App() {
   const [registros, setRegistros] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/registros')
+    fetch(`${process.env.REACT_APP_API_URL}/api/registros`)
       .then(response => response.json())
       .then(data => setRegistros(data));
   }, []);
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('http://localhost:5000/api/guardar', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/guardar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nombre })
@@ -24,6 +24,7 @@ function App() {
         setRegistros([...registros, { nombre, hora: new Date().toISOString(), mensaje: data.mensaje }]);
       });
   };
+  
 
   return (
     <div style={styles.container}>
